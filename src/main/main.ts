@@ -54,13 +54,18 @@ const installExtensions = async () => {
       extensions.map((name) => installer[name]),
       forceDownload,
     )
-    .catch(console.log);
+    .catch((err: Error) => {
+      console.log('Error installing extensions:', err);
+      // Continue anyway
+      return null;
+    });
 };
 
 const createWindow = async () => {
-  if (isDebug) {
-    await installExtensions();
-  }
+  // Comment out extension installation to avoid CRX errors
+  // if (isDebug) {
+  //   await installExtensions();
+  // }
 
   // Register IPC handlers
   registerIpcHandlers();
