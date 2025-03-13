@@ -1,5 +1,6 @@
 import { ipcMain, IpcMainInvokeEvent } from 'electron';
 import OpenAI from 'openai';
+import { searchDocumentation } from './documentation';
 
 // Store OpenAI client instances by API key
 const openAIClients = new Map<string, OpenAI>();
@@ -15,6 +16,50 @@ function getOpenAIClient(apiKey: string): OpenAI {
     );
   }
   return openAIClients.get(apiKey)!;
+}
+
+// Create system message with context and documentation
+async function createSystemMessage(context: any, query: string, apiKey: string) {
+  // First, try to find relevant documentation
+  let documentationContext = '';
+  try {
+    // Search for relevant documentation (limit to top 3 results)
+    const docResults = await searchDocumentation(query, apiKey, 3);
+
+    if (docResults && docResults.length > 0) {
+      // Format documentation references
+      documentationContext = `\nRelevant documentation:\n`;
+
+      docResults.forEach((result: { item: { title: string; source: string; content: string } }, index: number) => {
+        documentationContext += `\n[Doc ${index + 1}] ${result.item.title} (${result.item.source}):\n${result.item.content.substring(0, 800)}${result.item.content.length > 800 ? '...' : ''}\n`;
+      });
+    }
+  } catch (error) {
+    console.error('Error retrieving documentation for AI context:', error);
+    // Continue without documentation if there's an error
+  }
+
+  // Prepare system message with context and documentation
+  return {
+    role: 'system' as const,
+    content: `You are an AI assistant for both Blender and After Effects. You can answer questions about either software or both together.
+
+Current context:
+${context.activeTool ? `- Active tool: ${context.activeTool}` : ''}
+${context.activePanel ? `- Active panel: ${context.activePanel}` : ''}
+${
+  context.selectedObjects.length > 0
+    ? `- Selected objects: ${context.selectedObjects.join(', ')}`
+    : ''
+}
+${context.timelineState ? `- Timeline state: ${context.timelineState}` : ''}
+${context.viewportMode ? `- Viewport mode: ${context.viewportMode}` : ''}
+${documentationContext}
+
+Provide helpful, concise responses about how to use either software based on the user's question and the documentation provided. Feel free to compare and contrast the software when appropriate.
+
+If the documentation above is relevant to the question, incorporate that information in your response, but make it conversational and helpful rather than just repeating text.`,
+  };
 }
 
 export function registerAIAssistantHandlers(): void {
@@ -53,24 +98,12 @@ export function registerAIAssistantHandlers(): void {
 
         const openai = getOpenAIClient(apiKey);
 
-        // Prepare system message with context
-        const systemMessage = {
-          role: 'system' as const,
-          content: `You are an AI assistant for both Blender and After Effects. You can answer questions about either software or both together.
+        // Get the latest user query
+        const lastUserMessage = [...messages].reverse().find(m => m.role === 'user');
+        const userQuery = lastUserMessage ? lastUserMessage.content : '';
 
-Current context:
-${context.activeTool ? `- Active tool: ${context.activeTool}` : ''}
-${context.activePanel ? `- Active panel: ${context.activePanel}` : ''}
-${
-  context.selectedObjects.length > 0
-    ? `- Selected objects: ${context.selectedObjects.join(', ')}`
-    : ''
-}
-${context.timelineState ? `- Timeline state: ${context.timelineState}` : ''}
-${context.viewportMode ? `- Viewport mode: ${context.viewportMode}` : ''}
-
-Provide helpful, concise responses about how to use either software based on the user's question. Feel free to compare and contrast the software when appropriate.`,
-        };
+        // Create system message with context and documentation
+        const systemMessage = await createSystemMessage(context, userQuery, apiKey);
 
         // Prepare messages array with system message first
         const messagesWithContext = [
@@ -82,7 +115,7 @@ Provide helpful, concise responses about how to use either software based on the
         if (screenshotData) {
           // For GPT-4 Vision (note: streaming not fully supported with images yet in some clients)
           const response = await openai.chat.completions.create({
-            model: 'gpt-4-vision-preview',
+            model: 'gpt-4-turbo',
             messages: [
               ...messagesWithContext,
               {
@@ -114,7 +147,7 @@ Provide helpful, concise responses about how to use either software based on the
           // Send completion event
           event.sender.send('ai-response-complete', {
             id: messageId,
-            model: 'gpt-4-vision-preview'
+            model: 'gpt-4-turbo'
           });
 
           return { success: true };
@@ -188,24 +221,12 @@ Provide helpful, concise responses about how to use either software based on the
 
         const openai = getOpenAIClient(apiKey);
 
-        // Prepare system message with context
-        const systemMessage = {
-          role: 'system' as const,
-          content: `You are an AI assistant for both Blender and After Effects. You can answer questions about either software or both together.
+        // Get the latest user query
+        const lastUserMessage = [...messages].reverse().find(m => m.role === 'user');
+        const userQuery = lastUserMessage ? lastUserMessage.content : '';
 
-Current context:
-${context.activeTool ? `- Active tool: ${context.activeTool}` : ''}
-${context.activePanel ? `- Active panel: ${context.activePanel}` : ''}
-${
-  context.selectedObjects.length > 0
-    ? `- Selected objects: ${context.selectedObjects.join(', ')}`
-    : ''
-}
-${context.timelineState ? `- Timeline state: ${context.timelineState}` : ''}
-${context.viewportMode ? `- Viewport mode: ${context.viewportMode}` : ''}
-
-Provide helpful, concise responses about how to use either software based on the user's question. Feel free to compare and contrast the software when appropriate.`,
-        };
+        // Create system message with context and documentation
+        const systemMessage = await createSystemMessage(context, userQuery, apiKey);
 
         // Prepare messages array with system message first
         const messagesWithContext = [
@@ -217,7 +238,7 @@ Provide helpful, concise responses about how to use either software based on the
         if (screenshotData) {
           // For GPT-4 Vision
           const response = await openai.chat.completions.create({
-            model: 'gpt-4-vision-preview',
+            model: 'gpt-4-turbo',
             messages: [
               ...messagesWithContext,
               {

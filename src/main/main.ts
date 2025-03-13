@@ -15,6 +15,8 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { registerIpcHandlers } from './ipc';
+import fs from 'fs';
+import { settingsStore } from './ipc/settings';
 
 class AppUpdater {
   constructor() {
@@ -70,9 +72,37 @@ const createWindow = async () => {
   // Register IPC handlers
   registerIpcHandlers();
 
+  // Check for and setup embeddings
   const RESOURCES_PATH = app.isPackaged
     ? path.join(process.resourcesPath, 'assets')
     : path.join(__dirname, '../../assets');
+
+  // Check if the embeddings exist in the user data directory
+  const userDataEmbeddingsPath = path.join(app.getPath('userData'), 'embeddings', 'docs.json');
+  // Check if our alternative embeddings exist in the assets directory
+  const assetsEmbeddingsPath = path.join(RESOURCES_PATH, 'embeddings', 'docs.json');
+
+  // Check for existing embeddings and set the path in settings
+  if (fs.existsSync(userDataEmbeddingsPath)) {
+    console.log('Using embeddings from user data directory');
+    // Use the user data directory embeddings
+    // @ts-ignore - Ignore type issues with electron-store
+    settingsStore.set('embeddingsPath', path.join(app.getPath('userData'), 'embeddings'));
+  } else if (fs.existsSync(assetsEmbeddingsPath)) {
+    console.log('Using embeddings from assets directory');
+    // Use the assets directory embeddings
+    // @ts-ignore - Ignore type issues with electron-store
+    settingsStore.set('embeddingsPath', path.join(RESOURCES_PATH, 'embeddings'));
+  } else {
+    console.log('No embeddings found. Using default embeddings path.');
+    // Use the default embeddings path (user data directory)
+    // @ts-ignore - Ignore type issues with electron-store
+    settingsStore.set('embeddingsPath', path.join(app.getPath('userData'), 'embeddings'));
+    // Create the directory if it doesn't exist
+    if (!fs.existsSync(path.join(app.getPath('userData'), 'embeddings'))) {
+      fs.mkdirSync(path.join(app.getPath('userData'), 'embeddings'), { recursive: true });
+    }
+  }
 
   const getAssetPath = (...paths: string[]): string => {
     return path.join(RESOURCES_PATH, ...paths);

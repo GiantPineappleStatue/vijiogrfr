@@ -1,4 +1,4 @@
-import { ipcMain, desktopCapturer, IpcMainInvokeEvent } from 'electron';
+import { ipcMain, desktopCapturer, IpcMainInvokeEvent, BrowserWindow } from 'electron';
 import { createWorker } from 'tesseract.js';
 
 // Initialize Tesseract worker
@@ -31,6 +31,31 @@ export function registerScreenCaptureHandlers(): void {
     } catch (error) {
       console.error('Error getting screen sources:', error);
       throw error;
+    }
+  });
+
+  // Capture a screenshot of the selected source
+  ipcMain.handle('capture-screen', async (_event: IpcMainInvokeEvent, sourceId: string) => {
+    try {
+      // Get the source with the specified ID
+      const sources = await desktopCapturer.getSources({
+        types: ['window', 'screen'],
+        thumbnailSize: { width: 1920, height: 1080 }, // Higher resolution for the actual capture
+      });
+
+      const selectedSource = sources.find(source => source.id === sourceId);
+
+      if (!selectedSource) {
+        return { success: false, error: 'Selected source not found' };
+      }
+
+      // Get the data URL of the thumbnail
+      const dataUrl = selectedSource.thumbnail.toDataURL();
+
+      return { success: true, dataUrl };
+    } catch (error) {
+      console.error('Error capturing screen:', error);
+      return { success: false, error: 'Failed to capture screen' };
     }
   });
 

@@ -1,34 +1,56 @@
 #!/bin/bash
 # Script to generate embeddings using API key from .env file
 
-# Check if .env file exists
+# Load environment variables from .env file if it exists
 if [ -f .env ]; then
-  # Read the .env file
-  while IFS= read -r line || [[ -n "$line" ]]; do
-    # Skip comments and empty lines
-    [[ "$line" =~ ^#.*$ ]] && continue
-    [[ -z "$line" ]] && continue
-
-    # Export all variables from .env
-    export "$line"
-  done < .env
-
-  echo "Environment variables loaded from .env file"
-else
-  echo "Warning: .env file not found. Make sure OPENAI_API_KEY is set in your environment."
+  export $(cat .env | grep -v '#' | awk '/=/ {print $1}')
 fi
 
-# Create assets/embeddings directory if it doesn't exist
-mkdir -p ./assets/embeddings
+# Check if OPENAI_API_KEY is set
+if [ -z "$OPENAI_API_KEY" ]; then
+  echo "Error: OPENAI_API_KEY is not set. Please set it in your .env file or environment."
+  exit 1
+fi
+
+# Define paths
+ASSETS_DIR="./assets/embeddings"
+USER_DATA_DIR="$HOME/.blenderae-assistant"
+EMBEDDINGS_FILE="docs.json"
+ASSETS_EMBEDDINGS_PATH="$ASSETS_DIR/$EMBEDDINGS_FILE"
+USER_DATA_EMBEDDINGS_PATH="$USER_DATA_DIR/$EMBEDDINGS_FILE"
+
+# Create directories if they don't exist
+mkdir -p "$ASSETS_DIR"
+mkdir -p "$USER_DATA_DIR"
+
+# Check if embeddings already exist in either location
+if [ -f "$ASSETS_EMBEDDINGS_PATH" ] || [ -f "$USER_DATA_EMBEDDINGS_PATH" ]; then
+  echo "Embeddings already exist. Skipping embedding generation."
+
+  # If embeddings exist in assets but not in user data, copy them
+  if [ -f "$ASSETS_EMBEDDINGS_PATH" ] && [ ! -f "$USER_DATA_EMBEDDINGS_PATH" ]; then
+    echo "Copying embeddings from assets to user data directory..."
+    cp "$ASSETS_EMBEDDINGS_PATH" "$USER_DATA_EMBEDDINGS_PATH"
+  fi
+
+  exit 0
+fi
+
+echo "Generating documentation embeddings..."
 
 # Run the embedding script
-echo "Generating documentation embeddings..."
-npx ts-node scripts/embed-documentation.ts --output=./assets/embeddings
+npx ts-node scripts/embed-documentation.ts --api-key "$OPENAI_API_KEY" --output "$ASSETS_EMBEDDINGS_PATH"
 
-# Check if the script succeeded
-if [ $? -eq 0 ]; then
-  echo "Documentation embeddings generated successfully in ./assets/embeddings"
+# Check if embedding was successful
+if [ $? -eq 0 ] && [ -f "$ASSETS_EMBEDDINGS_PATH" ]; then
+  echo "Embeddings generated successfully at $ASSETS_EMBEDDINGS_PATH"
+
+  # Copy to user data directory
+  echo "Copying embeddings to user data directory..."
+  cp "$ASSETS_EMBEDDINGS_PATH" "$USER_DATA_EMBEDDINGS_PATH"
+
+  echo "Embedding process completed."
 else
-  echo "Error generating documentation embeddings. Check your API key and try again."
+  echo "Error: Failed to generate embeddings."
   exit 1
 fi

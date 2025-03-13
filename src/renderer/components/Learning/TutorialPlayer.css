@@ -1,0 +1,275 @@
+.tutorial-player {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  height: 100%;
+  max-height: 600px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.tutorial-empty {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+.tutorial-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f0f4f8;
+  border-bottom: 1px solid #e1e8ed;
+}
+
+.tutorial-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #2d3748;
+}
+
+.tutorial-difficulty {
+  background-color: #edf2f7;
+  padding: 0.25rem 0.75rem;
+  border-radius: 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.tutorial-close-btn {
+  background-color: transparent;
+  border: none;
+  color: #718096;
+  cursor: pointer;
+  font-size: 0.875rem;
+  padding: 0.5rem;
+  transition: color 0.2s;
+}
+
+.tutorial-close-btn:hover {
+  color: #e53e3e;
+}
+
+.tutorial-progress-bar {
+  position: relative;
+  height: 6px;
+  background-color: #e2e8f0;
+  margin-bottom: 1rem;
+}
+
+.tutorial-progress-fill {
+  position: absolute;
+  height: 100%;
+  background-color: #4299e1;
+  transition: width 0.3s ease;
+}
+
+.tutorial-progress-text {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #718096;
+  margin-top: 4px;
+}
+
+.tutorial-step-content {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.tutorial-step-content h3 {
+  margin-top: 0;
+  color: #2d3748;
+  font-size: 1.25rem;
+}
+
+.tutorial-step-description {
+  color: #4a5568;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.tutorial-step-image {
+  margin: 1rem 0;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.tutorial-step-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.tutorial-hint-section {
+  margin: 1.5rem 0;
+}
+
+.tutorial-hint {
+  background-color: #ebf8ff;
+  border-left: 4px solid #4299e1;
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+.tutorial-hint h4 {
+  margin-top: 0;
+  color: #2b6cb0;
+}
+
+.tutorial-hint ul {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.tutorial-hint button {
+  background-color: transparent;
+  color: #4299e1;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  text-decoration: underline;
+}
+
+.tutorial-hint-btn {
+  background-color: #e6fffa;
+  border: 1px solid #81e6d9;
+  color: #319795;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.tutorial-hint-btn:hover {
+  background-color: #b2f5ea;
+}
+
+.tutorial-verification {
+  margin: 1rem 0;
+}
+
+.tutorial-confirm-checkbox {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  color: #4a5568;
+}
+
+.tutorial-confirm-checkbox input {
+  margin-right: 0.5rem;
+}
+
+.tutorial-navigation {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  border-top: 1px solid #e1e8ed;
+}
+
+.tutorial-nav-btn {
+  background-color: #edf2f7;
+  color: #4a5568;
+  border: 1px solid #cbd5e0;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+}
+
+.tutorial-nav-btn:hover:not(:disabled) {
+  background-color: #e2e8f0;
+}
+
+.tutorial-nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tutorial-complete-btn {
+  background-color: #4299e1;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.tutorial-complete-btn:hover:not(:disabled) {
+  background-color: #3182ce;
+}
+
+.tutorial-complete-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.tutorial-steps-overview {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-top: 1px solid #e1e8ed;
+}
+
+.tutorial-step-indicator {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: #edf2f7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.75rem;
+  color: #4a5568;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tutorial-step-indicator.current {
+  background-color: #4299e1;
+  color: white;
+  transform: scale(1.1);
+}
+
+.tutorial-step-indicator.completed {
+  background-color: #48bb78;
+  color: white;
+}
+
+@media (max-width: 640px) {
+  .tutorial-player {
+    max-width: 100%;
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  .tutorial-header {
+    padding: 0.75rem;
+  }
+
+  .tutorial-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .tutorial-navigation {
+    padding: 0.75rem;
+  }
+}

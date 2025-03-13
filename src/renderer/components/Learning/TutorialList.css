@@ -1,0 +1,252 @@
+.tutorial-list {
+  width: 100%;
+  padding: 1rem;
+}
+
+.tutorial-search-filters {
+  margin-bottom: 1.5rem;
+}
+
+.tutorial-search-input {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tutorial-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.tutorial-filter-select {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  background-color: #f7fafc;
+  font-size: 0.875rem;
+  color: #4a5568;
+  min-width: 120px;
+}
+
+.tutorial-empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  background-color: #f7fafc;
+  border-radius: 8px;
+  border: 1px dashed #cbd5e0;
+}
+
+.tutorial-empty-state h3 {
+  color: #4a5568;
+  margin-bottom: 0.5rem;
+}
+
+.tutorial-empty-state p {
+  color: #718096;
+  margin: 0;
+}
+
+.tutorials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.tutorial-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+  height: 100%;
+}
+
+.tutorial-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.tutorial-card.completed {
+  border-color: #48bb78;
+}
+
+.tutorial-card.in-progress {
+  border-color: #4299e1;
+}
+
+.tutorial-card-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background-color: #f7fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.tutorial-software {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background-color: #e2e8f0;
+  color: #4a5568;
+}
+
+.tutorial-software.blender {
+  background-color: #ebf8ff;
+  color: #3182ce;
+}
+
+.tutorial-software.afterEffects {
+  background-color: #faf5ff;
+  color: #805ad5;
+}
+
+.tutorial-software.both {
+  background-color: #f0fff4;
+  color: #38a169;
+}
+
+.tutorial-difficulty {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background-color: #e2e8f0;
+  color: #4a5568;
+}
+
+.tutorial-difficulty.beginner {
+  background-color: #e6fffa;
+  color: #319795;
+}
+
+.tutorial-difficulty.intermediate {
+  background-color: #ebf8ff;
+  color: #3182ce;
+}
+
+.tutorial-difficulty.advanced {
+  background-color: #fed7d7;
+  color: #e53e3e;
+}
+
+.tutorial-title {
+  padding: 0.75rem 0.75rem 0.5rem;
+  margin: 0;
+  font-size: 1.125rem;
+  color: #2d3748;
+}
+
+.tutorial-description {
+  padding: 0 0.75rem;
+  color: #718096;
+  font-size: 0.875rem;
+  margin: 0 0 0.75rem;
+  line-height: 1.4;
+  flex-grow: 1;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.tutorial-meta {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  color: #718096;
+  border-top: 1px solid #f7fafc;
+}
+
+.tutorial-progress {
+  padding: 0.5rem 0.75rem;
+}
+
+.tutorial-progress-bar {
+  height: 4px;
+  background-color: #e2e8f0;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 0.25rem;
+}
+
+.tutorial-progress-fill {
+  height: 100%;
+  background-color: #4299e1;
+}
+
+.tutorial-card.completed .tutorial-progress-fill {
+  background-color: #48bb78;
+}
+
+.tutorial-progress-text {
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+.tutorial-card.completed .tutorial-progress-text {
+  color: #48bb78;
+}
+
+.tutorial-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.tutorial-tag {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.5rem;
+  background-color: #edf2f7;
+  color: #4a5568;
+  border-radius: 16px;
+}
+
+.tutorial-start-btn {
+  margin: 0.5rem 0.75rem 0.75rem;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #4299e1;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.tutorial-start-btn:hover {
+  background-color: #3182ce;
+}
+
+.tutorial-card.completed .tutorial-start-btn {
+  background-color: #48bb78;
+}
+
+.tutorial-card.completed .tutorial-start-btn:hover {
+  background-color: #38a169;
+}
+
+.tutorial-card.in-progress .tutorial-start-btn {
+  background-color: #4299e1;
+}
+
+.tutorial-card.in-progress .tutorial-start-btn:hover {
+  background-color: #3182ce;
+}
+
+@media (max-width: 768px) {
+  .tutorial-filters {
+    flex-direction: column;
+  }
+
+  .tutorial-filter-select {
+    width: 100%;
+  }
+}

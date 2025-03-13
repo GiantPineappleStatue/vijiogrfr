@@ -2,13 +2,14 @@ import { ipcMain, IpcMainInvokeEvent } from 'electron';
 import path from 'path';
 import fs from 'fs';
 import OpenAI from 'openai';
+import { settingsStore } from '../ipc/settings';
 
 // Store documentation data
 interface DocumentationItem {
   id: string;
   title: string;
   content: string;
-  source: 'blender' | 'afterEffects';
+  source: string;
   path: string;
   embedding?: number[];
 }
@@ -27,19 +28,29 @@ function initOpenAI(apiKey: string): OpenAI {
 }
 
 // Load documentation from disk
-async function loadDocumentation(embeddingsPath: string): Promise<void> {
+async function loadDocumentation(embeddingsPath?: string): Promise<void> {
   try {
+    // Get embeddings path from settings if not provided
+    // @ts-ignore - Ignore type issues with electron-store
+    const storeData = settingsStore.store as Record<string, any>;
+    const actualPath = embeddingsPath || storeData.embeddingsPath;
+
+    if (!actualPath) {
+      throw new Error('Embeddings path not configured in settings');
+    }
+
+    console.log(`Loading documentation from: ${actualPath}`);
+
     // Check if embeddings file exists
-    if (!fs.existsSync(embeddingsPath)) {
-      throw new Error(`Embeddings file not found at ${embeddingsPath}`);
+    const docsPath = path.join(actualPath, 'docs.json');
+    if (!fs.existsSync(docsPath)) {
+      throw new Error(`Embeddings file not found at ${docsPath}`);
     }
 
     // Load documentation items with embeddings
-    const docsPath = path.join(embeddingsPath, 'docs.json');
-    if (fs.existsSync(docsPath)) {
-      const docsData = fs.readFileSync(docsPath, 'utf-8');
-      documentationItems = JSON.parse(docsData);
-    }
+    const docsData = fs.readFileSync(docsPath, 'utf-8');
+    documentationItems = JSON.parse(docsData);
+    console.log(`Loaded ${documentationItems.length} documentation items`);
 
     return;
   } catch (error) {
@@ -86,7 +97,7 @@ function cosineSimilarity(a: number[], b: number[]): number {
 }
 
 // Search documentation using vector similarity
-async function searchDocumentation(
+export async function searchDocumentation(
   query: string,
   apiKey: string,
   limit = 5
@@ -120,12 +131,34 @@ export function registerDocumentationHandlers(): void {
   // Load documentation
   ipcMain.handle(
     'load-documentation',
-    async (_event: IpcMainInvokeEvent, embeddingsPath: string) => {
+    async (_event: IpcMainInvokeEvent, providedPath?: string) => {
       try {
-        await loadDocumentation(embeddingsPath);
+        await loadDocumentation(providedPath);
         return { success: true, count: documentationItems.length };
       } catch (error) {
         console.error('Error loading documentation:', error);
+        throw error;
+      }
+    }
+  );
+
+  // Get all documents
+  ipcMain.handle(
+    'get-all-documents',
+    async (_event: IpcMainInvokeEvent) => {
+      try {
+        if (documentationItems.length === 0) {
+          // Try to load documentation if not already loaded
+          try {
+            await loadDocumentation();
+          } catch (loadError) {
+            console.error('Failed to load documentation on demand:', loadError);
+            throw new Error('Documentation not loaded and auto-load failed');
+          }
+        }
+        return documentationItems;
+      } catch (error) {
+        console.error('Error getting all documents:', error);
         throw error;
       }
     }
@@ -139,6 +172,16 @@ export function registerDocumentationHandlers(): void {
       { query, apiKey, limit = 5 }: { query: string; apiKey: string; limit?: number }
     ) => {
       try {
+        if (documentationItems.length === 0) {
+          // Try to load documentation if not already loaded
+          try {
+            await loadDocumentation();
+          } catch (loadError) {
+            console.error('Failed to load documentation on demand:', loadError);
+            throw new Error('Documentation not loaded and auto-load failed');
+          }
+        }
+
         const results = await searchDocumentation(query, apiKey, limit);
         return results;
       } catch (error) {

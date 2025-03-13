@@ -1,0 +1,53 @@
+.learning-center {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: #f8fafc;
+}
+
+.learning-header {
+  padding: 1.5rem 1.5rem 1rem;
+  background-color: white;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.learning-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+  color: #2d3748;
+}
+
+.learning-subtitle {
+  margin: 0;
+  color: #718096;
+  font-size: 1rem;
+}
+
+.tutorial-player-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: auto;
+  padding: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .learning-header {
+    padding: 1rem;
+  }
+
+  .learning-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .learning-subtitle {
+    font-size: 0.875rem;
+  }
+
+  .tutorial-player-container {
+    padding: 0.75rem;
+  }
+}

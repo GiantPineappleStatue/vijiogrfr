@@ -11,6 +11,7 @@ import {
   setSearchResults,
   setSelectedDocItem,
   setError,
+  setEmbeddingLoaded,
   SearchResult,
   DocumentationItem,
 } from '../../features/documentation/documentationSlice';
@@ -27,16 +28,32 @@ const DocumentationView: React.FC = () => {
   const apiKey = useSelector(selectOpenAiApiKey);
 
   const [searchInput, setSearchInput] = useState('');
+  const [allDocuments, setAllDocuments] = useState<DocumentationItem[]>([]);
+  const [isLoadingDocuments, setIsLoadingDocuments] = useState(false);
 
   // Load embeddings on component mount
   useEffect(() => {
     const loadEmbeddings = async () => {
       try {
+        setIsLoadingDocuments(true);
+        // First, get the settings to retrieve the embeddingsPath
+        const settings = await window.electron.ipcRenderer.invoke('load-settings') as any;
+        const embeddingsPath = settings?.embeddingsPath;
+
+        console.log('Using embeddings path:', embeddingsPath);
+
         // Use type assertion to bypass TypeScript channel checking
-        await (window.electron.ipcRenderer.invoke as any)('load-documentation');
+        const result = await (window.electron.ipcRenderer.invoke as any)('load-documentation', embeddingsPath);
+        dispatch(setEmbeddingLoaded(true));
+
+        // Fetch all documents for initial display
+        const allDocs = await (window.electron.ipcRenderer.invoke as any)('get-all-documents');
+        setAllDocuments(allDocs);
       } catch (error) {
         console.error('Error loading documentation:', error);
         dispatch(setError('Failed to load documentation'));
+      } finally {
+        setIsLoadingDocuments(false);
       }
     };
 
@@ -86,6 +103,74 @@ const DocumentationView: React.FC = () => {
     dispatch(setSelectedDocItem(item));
   };
 
+  // Determine what to show in the results panel
+  const renderResultsList = () => {
+    if (isLoading || isLoadingDocuments) {
+      return <div className="loading">Loading...</div>;
+    }
+
+    if (currentSearchQuery && searchResults.length > 0) {
+      // Show search results
+      return (
+        <>
+          <h3>
+            Results for "{currentSearchQuery}"
+            <span className="result-count">
+              ({searchResults.length} {searchResults.length === 1 ? 'result' : 'results'})
+            </span>
+          </h3>
+          <ul className="result-list">
+            {searchResults.map((result) => (
+              <li
+                key={result.item.id}
+                className={`result-item ${
+                  selectedDocItem?.id === result.item.id ? 'selected' : ''
+                }`}
+                onClick={() => handleResultClick(result.item)}
+              >
+                <div className="result-title">{result.item.title}</div>
+                <div className="result-source">
+                  {result.item.source === 'blender' ? 'Blender' : 'After Effects'}
+                </div>
+                <div className="result-score">
+                  {Math.round(result.score * 100)}% match
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
+      );
+    } else if (currentSearchQuery) {
+      // Show "no results" message
+      return <div className="no-results">No results found</div>;
+    } else if (allDocuments.length > 0) {
+      // Show all documents when no search has been performed
+      return (
+        <>
+          <h3>All Available Documentation</h3>
+          <ul className="result-list">
+            {allDocuments.map((item) => (
+              <li
+                key={item.id}
+                className={`result-item ${
+                  selectedDocItem?.id === item.id ? 'selected' : ''
+                }`}
+                onClick={() => handleResultClick(item)}
+              >
+                <div className="result-title">{item.title}</div>
+                <div className="result-source">
+                  {item.source === 'blender' ? 'Blender' : 'After Effects'}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <div className="documentation-view">
       <div className="search-panel">
@@ -111,38 +196,7 @@ const DocumentationView: React.FC = () => {
         )}
 
         <div className="search-results">
-          {currentSearchQuery && (
-            <h3>
-              Results for "{currentSearchQuery}"
-              <span className="result-count">
-                ({searchResults.length} {searchResults.length === 1 ? 'result' : 'results'})
-              </span>
-            </h3>
-          )}
-
-          {searchResults.length > 0 ? (
-            <ul className="result-list">
-              {searchResults.map((result) => (
-                <li
-                  key={result.item.id}
-                  className={`result-item ${
-                    selectedDocItem?.id === result.item.id ? 'selected' : ''
-                  }`}
-                  onClick={() => handleResultClick(result.item)}
-                >
-                  <div className="result-title">{result.item.title}</div>
-                  <div className="result-source">
-                    {result.item.source === 'blender' ? 'Blender' : 'After Effects'}
-                  </div>
-                  <div className="result-score">
-                    {Math.round(result.score * 100)}% match
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : currentSearchQuery ? (
-            <div className="no-results">No results found</div>
-          ) : null}
+          {renderResultsList()}
         </div>
       </div>
 

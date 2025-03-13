@@ -13,9 +13,11 @@ export type Channels =
   | 'ai-response-complete'
   | 'ai-response-error'
   | 'load-documentation'
+  | 'get-all-documents'
   | 'search-documentation'
   | 'save-settings'
-  | 'load-settings';
+  | 'load-settings'
+  | 'capture-screen';
 
 const electronHandler = {
   ipcRenderer: {

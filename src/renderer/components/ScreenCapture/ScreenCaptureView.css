@@ -61,9 +61,10 @@
   margin: 20px 0;
   display: flex;
   justify-content: center;
+  gap: 10px;
 }
 
-.capture-button {
+.capture-button, .auto-capture-button {
   background-color: var(--primary-color);
   color: white;
   border: none;
@@ -75,13 +76,21 @@
   transition: background-color 0.2s;
 }
 
-.capture-button:hover {
+.capture-button:hover, .auto-capture-button:hover {
   background-color: #3a5bd9;
 }
 
-.capture-button:disabled {
+.capture-button:disabled, .auto-capture-button:disabled {
   background-color: var(--secondary-color);
   cursor: not-allowed;
+}
+
+.auto-capture-button.active {
+  background-color: #d32f2f;
+}
+
+.auto-capture-button.active:hover {
+  background-color: #b71c1c;
 }
 
 .screenshot-preview {
@@ -93,4 +102,59 @@
   border-radius: 8px;
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow);
+  margin-bottom: 20px;
+}
+
+.analysis-loading {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  text-align: center;
+  font-style: italic;
+}
+
+.analysis-results {
+  margin-top: 15px;
+}
+
+.ocr-text {
+  margin-bottom: 20px;
+}
+
+.ocr-text h4 {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.ocr-text pre {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 15px;
+  border-radius: 4px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  font-family: monospace;
+  font-size: 0.9rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.ui-analysis {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 15px;
+  border-radius: 4px;
+}
+
+.ui-analysis h4 {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.analysis-item {
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.analysis-item:last-child {
+  margin-bottom: 0;
 }
